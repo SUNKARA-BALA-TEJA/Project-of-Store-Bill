@@ -1,0 +1,140 @@
+.profile-container {
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.profile-header {
+  background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-header .logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.icon-btn {
+  padding: 8px 16px;
+  background-color: white;
+  border: 2px solid #FFD700;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.icon-btn:hover {
+  background-color: #FFD700;
+}
+
+.profile-content {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.profile-content h2 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.profile-card {
+  background: white;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+}
+
+.profile-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.profile-row strong {
+  color: #333;
+  display: inline-block;
+  width: 200px;
+}
+
+.edit-btn, .save-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: linear-gradient(90deg, #FFD700 0%, #FFA500 100%);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.cancel-btn {
+  margin-top: 20px;
+  margin-left: 10px;
+  padding: 10px 24px;
+  background-color: white;
+  border: 2px solid #FFD700;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #FFD700;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+}
+
+.success-msg {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.error-msg {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}

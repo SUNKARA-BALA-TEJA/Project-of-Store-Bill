@@ -1,0 +1,126 @@
+.thankyou-container {
+  min-height: 100vh;
+  background: #f9fafb;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.thankyou-card {
+  background: white;
+  max-width: 600px;
+  width: 100%;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.thankyou-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.thankyou-header h1 {
+  color: #16a34a;
+  font-size: 32px;
+}
+
+.invoice-section {
+  border: 2px solid #e5e7eb;
+  padding: 25px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+}
+
+.invoice-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.invoice-details {
+  margin-bottom: 20px;
+  line-height: 1.8;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #e5e7eb;
+}
+
+.invoice-table thead {
+  background: #f9fafb;
+}
+
+.invoice-total {
+  text-align: right;
+  padding-top: 15px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.invoice-total h2 {
+  color: #16a34a;
+  text-align: right;
+}
+
+.thankyou-message {
+  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.8;
+}
+
+.thankyou-message h2 {
+  color: #16a34a;
+  margin-bottom: 10px;
+}
+
+.thankyou-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.print-btn,
+.newbill-btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.print-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+}
+
+.newbill-btn {
+  background: #16a34a;
+  color: white;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice, #invoice * {
+    visibility: visible;
+  }
+  #invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .thankyou-actions {
+    display: none;
+  }
+}
