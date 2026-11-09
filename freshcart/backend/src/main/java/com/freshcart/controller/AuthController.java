@@ -1,11 +1,14 @@
 package com.freshcart.controller;
 
 import com.freshcart.dto.AuthDto;
+import com.freshcart.service.AuthException;
 import com.freshcart.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -26,8 +29,11 @@ public class AuthController {
                     "username", response.getUsername(),
                     "status", "PENDING"
             ));
+        } catch (AuthException e) {
+            return ResponseEntity.badRequest().body(errorBody(e.getCode(), e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorBody("REGISTRATION_ERROR", "Registration failed. Please try again."));
         }
     }
 
@@ -35,18 +41,25 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody AuthDto.LoginRequest request) {
         try {
             return ResponseEntity.ok(authService.login(request));
+        } catch (AuthException e) {
+            HttpStatus status = switch (e.getCode()) {
+                case "VALIDATION_ERROR" -> HttpStatus.BAD_REQUEST;
+                case "INVALID_CREDENTIALS" -> HttpStatus.UNAUTHORIZED;
+                case "ACCOUNT_PENDING", "ACCOUNT_REJECTED", "ACCOUNT_DISABLED", "ACCOUNT_INACTIVE" -> HttpStatus.FORBIDDEN;
+                default -> HttpStatus.BAD_REQUEST;
+            };
+            return ResponseEntity.status(status).body(errorBody(e.getCode(), e.getMessage()));
         } catch (Exception e) {
-            String msg = e.getMessage();
-            if (msg != null && msg.contains("pending approval")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Your registration is awaiting administrator approval."));
-            }
-            if (msg != null && msg.contains("inactive") && msg.contains("rejected")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Your registration request was rejected. Please contact the administrator."));
-            }
-            if (msg != null && (msg.contains("rejected") || msg.contains("REJECTED"))) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Your registration request was rejected. Please contact the administrator."));
-            }
-            return ResponseEntity.badRequest().body(Map.of("error", msg != null ? msg : "Invalid credentials"));
+            // Do not turn server failures into a misleading "Invalid credentials" message.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorBody("AUTHENTICATION_ERROR", "The authentication service is temporarily unavailable. Please try again."));
         }
+    }
+
+    private Map<String, String> errorBody(String code, String message) {
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("error", message);
+        body.put("code", code);
+        return body;
     }
 }

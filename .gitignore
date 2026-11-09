@@ -1,0 +1,25 @@
+# Java and Maven
+**/target/
+**/*.class
+**/*.jar
+
+# Node dependencies and builds
+**/node_modules/
+**/dist/
+
+# Local databases
+**/*.mv.db
+**/*.trace.db
+
+# Logs and backups
+*.log
+*.err
+*.out
+*.bak
+**/*-backup*
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+**/uploads/

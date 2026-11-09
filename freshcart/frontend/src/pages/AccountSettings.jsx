@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../api'
 import './Profile.css'
@@ -50,7 +50,7 @@ function AccountSettings() {
   return (
     <div className="profile-container">
       <header className="profile-header">
-        <div className="logo">🛒 FreshCart</div>
+        <div className="logo">ðŸ›’ FreshCart</div>
         <div className="header-right">
           <button onClick={() => navigate('/shop')} className="icon-btn">Back to Shop</button>
           <button onClick={() => navigate('/profile')} className="icon-btn">My Profile</button>
@@ -92,3 +92,4 @@ function AccountSettings() {
 }
 
 export default AccountSettings
+

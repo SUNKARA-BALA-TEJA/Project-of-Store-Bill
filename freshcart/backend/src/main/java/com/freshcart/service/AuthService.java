@@ -7,7 +7,12 @@ import com.freshcart.model.User;
 import com.freshcart.repository.UserRepository;
 import com.freshcart.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +23,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                       AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -31,18 +36,26 @@ public class AuthService {
             request.getUsername() == null || request.getUsername().trim().isEmpty() ||
             request.getEmail() == null || request.getEmail().trim().isEmpty() ||
             request.getPassword() == null || request.getConfirmPassword() == null) {
-            throw new RuntimeException("All fields are required");
+            throw new AuthException("VALIDATION_ERROR", "All fields are required");
         }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Passwords do not match");
+            throw new AuthException("VALIDATION_ERROR", "Passwords do not match");
         }
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+
+        String username = request.getUsername().trim();
+        String email = request.getEmail().trim();
+
+        if (userRepository.existsByUsername(username)) {
+            throw new AuthException("USERNAME_EXISTS", "Username already exists");
         }
+        if (userRepository.existsByEmail(email)) {
+            throw new AuthException("EMAIL_EXISTS", "Email address is already registered");
+        }
+
         User user = User.builder()
-                .fullName(request.getFullName())
-                .username(request.getUsername())
-                .email(request.getEmail())
+                .fullName(request.getFullName().trim())
+                .username(username)
+                .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .accountStatus(AccountStatus.PENDING)
@@ -57,24 +70,52 @@ public class AuthService {
     }
 
     public AuthDto.AuthResponse login(AuthDto.LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-        if (user.getAccountStatus() == AccountStatus.PENDING) {
-            throw new RuntimeException("Account pending approval or inactive. Please contact administrator.");
+        String username = request.getUsername() == null ? "" : request.getUsername().trim();
+        String rawPassword = request.getPassword();
+
+        if (username.isEmpty() || rawPassword == null || rawPassword.isEmpty()) {
+            throw new AuthException("VALIDATION_ERROR", "Username and password are required");
         }
-        if (user.getAccountStatus() == AccountStatus.REJECTED || user.getAccountStatus() == AccountStatus.DISABLED || user.getAccountStatus() == AccountStatus.INACTIVE) {
-            throw new RuntimeException("Your registration request was rejected. Please contact the administrator.");
-        }
-        if (user.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Account pending approval or inactive. Please contact administrator.");
-        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthException("INVALID_CREDENTIALS", "Invalid username or password"));
+
+        // Verify the password with the same encoder used by registration.
+        // Do this before exposing account-status information.
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(username, rawPassword)
             );
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid credentials");
+        } catch (BadCredentialsException | UsernameNotFoundException e) {
+            throw new AuthException("INVALID_CREDENTIALS", "Invalid username or password");
+        } catch (DisabledException | LockedException e) {
+            throw new AuthException("ACCOUNT_DISABLED", "Your account is disabled. Please contact the administrator.");
+        } catch (AuthenticationException e) {
+            throw new AuthException("INVALID_CREDENTIALS", "Invalid username or password");
         }
+
+        switch (user.getAccountStatus()) {
+            case ACTIVE -> {
+                // Account may sign in.
+            }
+            case PENDING -> throw new AuthException(
+                    "ACCOUNT_PENDING",
+                    "Your registration is awaiting administrator approval."
+            );
+            case REJECTED -> throw new AuthException(
+                    "ACCOUNT_REJECTED",
+                    "Your registration request was rejected. Please contact the administrator."
+            );
+            case DISABLED, INACTIVE -> throw new AuthException(
+                    "ACCOUNT_DISABLED",
+                    "Your account is disabled. Please contact the administrator."
+            );
+            default -> throw new AuthException(
+                    "ACCOUNT_INACTIVE",
+                    "Your account is not active. Please contact the administrator."
+            );
+        }
+
         String token = jwtUtil.generateToken(user.getUsername());
         AuthDto.AuthResponse response = new AuthDto.AuthResponse();
         response.setToken(token);
@@ -83,26 +124,4 @@ public class AuthService {
         return response;
     }
 
-    public void createAdmin(String username, String password) {
-        if (userRepository.findByUsername(username).isPresent()) {
-            User existing = userRepository.findByUsername(username).get();
-            existing.setRole(Role.ADMIN);
-            existing.setAccountStatus(AccountStatus.ACTIVE);
-            existing.setApprovedBy("SYSTEM");
-            existing.setApprovalTimestamp(java.time.LocalDateTime.now());
-            userRepository.save(existing);
-            return;
-        }
-        if (userRepository.count() == 0) {
-            User admin = User.builder()
-                    .username(username)
-                    .passwordHash(passwordEncoder.encode(password))
-                    .role(Role.ADMIN)
-                    .accountStatus(AccountStatus.ACTIVE)
-                    .approvedBy("SYSTEM")
-                    .approvalTimestamp(java.time.LocalDateTime.now())
-                    .build();
-            userRepository.save(admin);
-        }
-    }
-}
+   }

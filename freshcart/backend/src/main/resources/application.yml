@@ -33,6 +33,8 @@ app:
     expiration-ms: 86400000
   upload:
     dir: ${UPLOAD_DIR:./uploads}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*,https://project-of-store-bill.vercel.app}
 
 logging:
   level:

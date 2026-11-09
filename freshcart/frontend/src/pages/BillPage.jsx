@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../api'
+import api, { SERVER_URL } from '../api'
 import './BillPage.css'
 
 function BillPage() {
@@ -124,10 +124,10 @@ function BillPage() {
   return (
     <div className="bill-container">
       <header className="bill-header">
-        <div className="logo">🛒 FreshCart</div>
+        <div className="logo">ðŸ›’ FreshCart</div>
         <div className="header-right">
-          <span>👤 {username}</span>
-          <button onClick={() => navigate('/settings')} className="icon-btn">⚙️ Settings</button>
+          <span>ðŸ‘¤ {username}</span>
+          <button onClick={() => navigate('/settings')} className="icon-btn">âš™ï¸ Settings</button>
           <button onClick={logout} className="icon-btn">Logout</button>
         </div>
       </header>
@@ -167,7 +167,7 @@ function BillPage() {
                     <tr key={idx}>
                       <td className="product-cell">
                         <img 
-                          src={item.product.imagePath ? `http://localhost:8080${item.product.imagePath}` : 'https://via.placeholder.com/60'} 
+                          src={item.product.imagePath ? `${SERVER_URL}${item.product.imagePath}` : 'https://via.placeholder.com/60'} 
                           alt={item.product.name}
                         />
                         <span>{item.product.name}</span>
@@ -179,8 +179,8 @@ function BillPage() {
                           <button onClick={() => updateQuantity(idx, 0.5)}>+</button>
                         </div>
                       </td>
-                      <td>₹{item.product.currentSellingPrice}/{item.product.unit}</td>
-                      <td>₹{(parseFloat(item.product.currentSellingPrice) * parseFloat(item.quantity)).toFixed(2)}</td>
+                      <td>â‚¹{item.product.currentSellingPrice}/{item.product.unit}</td>
+                      <td>â‚¹{(parseFloat(item.product.currentSellingPrice) * parseFloat(item.quantity)).toFixed(2)}</td>
                       <td><button onClick={() => removeItem(idx)} className="remove-btn">Remove</button></td>
                     </tr>
                   ))}
@@ -196,7 +196,7 @@ function BillPage() {
               </div>
               <div className="summary-row total">
                 <span>Final Amount:</span>
-                <span>₹{getSubtotal().toFixed(2)}</span>
+                <span>â‚¹{getSubtotal().toFixed(2)}</span>
               </div>
             </section>
 
@@ -213,7 +213,7 @@ function BillPage() {
           <div className="modal">
             <div className="modal-header">
               <h3>Add Another Item</h3>
-              <button onClick={() => setShowAddItem(false)}>✕</button>
+              <button onClick={() => setShowAddItem(false)}>âœ•</button>
             </div>
             <input 
               type="text" 
@@ -225,10 +225,10 @@ function BillPage() {
             <div className="modal-products">
               {products.map(product => (
                 <div key={product.id} className="modal-product">
-                  <img src={product.imagePath ? `http://localhost:8080${product.imagePath}` : 'https://via.placeholder.com/60'} alt={product.name} />
+                  <img src={product.imagePath ? `${SERVER_URL}${product.imagePath}` : 'https://via.placeholder.com/60'} alt={product.name} />
                   <div className="modal-product-info">
                     <h4>{product.name}</h4>
-                    <p>₹{product.currentSellingPrice}/{product.unit} | Stock: {product.stock}</p>
+                    <p>â‚¹{product.currentSellingPrice}/{product.unit} | Stock: {product.stock}</p>
                   </div>
                   <input 
                     type="number" 
@@ -249,3 +249,5 @@ function BillPage() {
 }
 
 export default BillPage
+
+

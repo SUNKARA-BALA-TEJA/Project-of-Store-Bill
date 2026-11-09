@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../api'
+import api, { SERVER_URL } from '../api'
 import './Shop.css'
 
 function Shop() {
@@ -102,7 +102,7 @@ function Shop() {
     <div className="shop-container">
       <header className="shop-header">
         <div className="header-left">
-          <div className="logo">🛒 FreshCart</div>
+          <div className="logo">ðŸ›’ FreshCart</div>
         </div>
         <form onSubmit={handleSearch} className="search-form">
           <input 
@@ -119,7 +119,7 @@ function Shop() {
               e.stopPropagation()
               const menu = document.getElementById('profileMenu')
               if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block'
-            }} className="icon-btn">👤 {username}</button>
+            }} className="icon-btn">ðŸ‘¤ {username}</button>
             <div id="profileMenu" style={{display:'none', position:'absolute', right:0, top:'40px', background:'white', border:'2px solid #FFD700', borderRadius:'5px', zIndex:1000, minWidth:'150px'}} onClick={(e) => e.stopPropagation()}>
               <div style={{padding:'8px 12px', cursor:'pointer'}} onClick={() => { document.getElementById('profileMenu').style.display='none'; navigate('/profile'); }}>My Profile</div>
               <div style={{padding:'8px 12px', cursor:'pointer'}} onClick={() => { document.getElementById('profileMenu').style.display='none'; navigate('/account-settings'); }}>Account Settings</div>
@@ -127,8 +127,8 @@ function Shop() {
               <div style={{padding:'8px 12px', cursor:'pointer', borderTop:'1px solid #eee'}} onClick={() => { document.getElementById('profileMenu').style.display='none'; logout(); }}>Logout</div>
             </div>
           </div>
-          {role === 'ADMIN' && <button onClick={() => navigate('/settings')} className="icon-btn">⚙️ Settings</button>}
-          <span className="cart-badge">🛍️ {selectedItems.length} items</span>
+          {role === 'ADMIN' && <button onClick={() => navigate('/settings')} className="icon-btn">âš™ï¸ Settings</button>}
+          <span className="cart-badge">ðŸ›ï¸ {selectedItems.length} items</span>
         </div>
       </header>
 
@@ -139,12 +139,12 @@ function Shop() {
             {products.map(product => (
               <div key={product.id} className="product-card">
                 <img 
-                  src={product.imagePath ? `http://localhost:8080${product.imagePath}` : 'https://via.placeholder.com/150'} 
+                  src={product.imagePath ? `${SERVER_URL}${product.imagePath}` : 'https://via.placeholder.com/150'} 
                   alt={product.name}
                   onError={(e) => { e.target.src = 'https://via.placeholder.com/150' }}
                 />
                 <h3>{product.name}</h3>
-                <p className="price">₹{product.currentSellingPrice}/{product.unit}</p>
+                <p className="price">â‚¹{product.currentSellingPrice}/{product.unit}</p>
                 <p className="stock">Available: {product.stock} {product.unit}</p>
                 <div className="add-section">
                   <input 
@@ -171,12 +171,12 @@ function Shop() {
                 {selectedItems.map(item => (
                   <div key={item.product.id} className="selected-item">
                     <img 
-                      src={item.product.imagePath ? `http://localhost:8080${item.product.imagePath}` : 'https://via.placeholder.com/80'} 
+                      src={item.product.imagePath ? `${SERVER_URL}${item.product.imagePath}` : 'https://via.placeholder.com/80'} 
                       alt={item.product.name}
                     />
                     <div className="item-info">
                       <h4>{item.product.name}</h4>
-                      <p>₹{item.product.currentSellingPrice}/{item.product.unit}</p>
+                      <p>â‚¹{item.product.currentSellingPrice}/{item.product.unit}</p>
                     </div>
                     <div className="item-qty">
                       <button onClick={() => updateQuantity(item.product.id, -0.5)}>-</button>
@@ -184,14 +184,14 @@ function Shop() {
                       <button onClick={() => updateQuantity(item.product.id, 0.5)}>+</button>
                     </div>
                     <div className="item-subtotal">
-                      ₹{(parseFloat(item.product.currentSellingPrice) * parseFloat(item.quantity)).toFixed(2)}
+                      â‚¹{(parseFloat(item.product.currentSellingPrice) * parseFloat(item.quantity)).toFixed(2)}
                     </div>
                     <button onClick={() => removeItem(item.product.id)} className="remove-btn">Remove</button>
                   </div>
                 ))}
               </div>
               <div className="total-section">
-                <h3>Current Total: ₹{getTotal()}</h3>
+                <h3>Current Total: â‚¹{getTotal()}</h3>
                 <button onClick={handleSubmit} className="submit-btn">Submit and Continue</button>
               </div>
             </>
@@ -203,3 +203,5 @@ function Shop() {
 }
 
 export default Shop
+
+

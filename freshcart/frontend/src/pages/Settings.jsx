@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../api'
+import api, { SERVER_URL } from '../api'
 import './Settings.css'
 
 function Settings() {
@@ -143,7 +143,7 @@ function Settings() {
   const viewInvoice = async (invoiceNumber) => {
     try {
       const res = await api.get(`/bills/${invoiceNumber}`)
-      alert(`Invoice: ${res.data.invoiceNumber}\nCustomer: ${res.data.customerName}\nTotal: ₹${res.data.finalTotal}`)
+      alert(`Invoice: ${res.data.invoiceNumber}\nCustomer: ${res.data.customerName}\nTotal: â‚¹${res.data.finalTotal}`)
     } catch (err) {
       alert('Failed to load invoice')
     }
@@ -157,14 +157,14 @@ function Settings() {
   return (
     <div className="settings-container">
       <header className="settings-header">
-        <div className="logo">🛒 FreshCart - Settings</div>
+        <div className="logo">ðŸ›’ FreshCart - Settings</div>
         <div className="header-right">
           <div style={{position:'relative'}}>
             <button onClick={(e) => {
               e.stopPropagation()
               const menu = document.getElementById('profileMenu')
               if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block'
-            }} className="icon-btn">👤 {username} (Admin)</button>
+            }} className="icon-btn">ðŸ‘¤ {username} (Admin)</button>
             <div id="profileMenu" style={{display:'none', position:'absolute', right:0, top:'40px', background:'white', border:'2px solid #FFD700', borderRadius:'5px', zIndex:1000, minWidth:'150px'}} onClick={(e) => e.stopPropagation()}>
               <div style={{padding:'8px 12px', cursor:'pointer'}} onClick={() => { document.getElementById('profileMenu').style.display='none'; navigate('/profile'); }}>My Profile</div>
               <div style={{padding:'8px 12px', cursor:'pointer'}} onClick={() => { document.getElementById('profileMenu').style.display='none'; navigate('/account-settings'); }}>Account Settings</div>
@@ -179,22 +179,22 @@ function Settings() {
       <div className="settings-layout">
         <nav className="settings-nav">
           <button className={activeTab === 'prices' ? 'active' : ''} onClick={() => setActiveTab('prices')}>
-            ⚙️ Modify Grocery Prices
+            âš™ï¸ Modify Grocery Prices
           </button>
           <button className={activeTab === 'stock' ? 'active' : ''} onClick={() => setActiveTab('stock')}>
-            📦 Add Stock to Existing Groceries
+            ðŸ“¦ Add Stock to Existing Groceries
           </button>
           <button className={activeTab === 'add' ? 'active' : ''} onClick={() => setActiveTab('add')}>
-            ➕ Add New Grocery
+            âž• Add New Grocery
           </button>
           <button className={activeTab === 'requests' ? 'active' : ''} onClick={() => setActiveTab('requests')}>
-            📝 Requests {requests.filter(r => r.status === 'PENDING' || r.requestStatus === 'PENDING').length > 0 ? `(${requests.filter(r => r.status === 'PENDING' || r.requestStatus === 'PENDING').length} Pending)` : ''}
+            ðŸ“ Requests {requests.filter(r => r.status === 'PENDING' || r.requestStatus === 'PENDING').length > 0 ? `(${requests.filter(r => r.status === 'PENDING' || r.requestStatus === 'PENDING').length} Pending)` : ''}
           </button>
           <button className={activeTab === 'billmgmt' ? 'active' : ''} onClick={() => setActiveTab('billmgmt')}>
-            🧾 Bill Management
+            ðŸ§¾ Bill Management
           </button>
           <button className={activeTab === 'reports' ? 'active' : ''} onClick={() => setActiveTab('reports')}>
-            📊 Data and Reports
+            ðŸ“Š Data and Reports
           </button>
         </nav>
 
@@ -218,12 +218,12 @@ function Settings() {
                     <tr key={product.id}>
                       <td>
                         <div className="product-cell">
-                          <img src={product.imagePath ? `http://localhost:8080${product.imagePath}` : 'https://via.placeholder.com/50'} alt={product.name} />
+                          <img src={product.imagePath ? `${SERVER_URL}${product.imagePath}` : 'https://via.placeholder.com/50'} alt={product.name} />
                           <span>{product.name}</span>
                         </div>
                       </td>
                       <td>{product.category}</td>
-                      <td>₹{product.currentSellingPrice}</td>
+                      <td>â‚¹{product.currentSellingPrice}</td>
                       <td>{product.unit}</td>
                       <td><input type="number" step="0.01" value={prices[product.id] || ''} onChange={(e) => setPrices({...prices, [product.id]: e.target.value})} /></td>
                       <td>
@@ -243,7 +243,7 @@ function Settings() {
               <div className="stock-grid">
                 {products.map(product => (
                   <div key={product.id} className="stock-card">
-                    <img src={product.imagePath ? `http://localhost:8080${product.imagePath}` : 'https://via.placeholder.com/100'} alt={product.name} />
+                    <img src={product.imagePath ? `${SERVER_URL}${product.imagePath}` : 'https://via.placeholder.com/100'} alt={product.name} />
                     <h3>{product.name}</h3>
                     <p>Current stock: {product.stock} {product.unit}</p>
                     <div className="stock-input-group">
@@ -391,7 +391,7 @@ function Settings() {
                       <td>{bill.createdAt || bill.billDate ? new Date(bill.createdAt || bill.billDate).toLocaleString() : '-'}</td>
                       <td>{bill.itemCount || (bill.items ? bill.items.length : 0)}</td>
                       <td>{bill.totalQuantity || '-'}</td>
-                      <td>₹{bill.finalTotal || bill.totalAmount}</td>
+                      <td>â‚¹{bill.finalTotal || bill.totalAmount}</td>
                       <td>{bill.createdBy || bill.username || '-'}</td>
                       <td><button onClick={() => deleteBill(bill.invoiceNumber || bill.billId, bill.customerName)} className="remove-btn">Delete</button></td>
                     </tr>
@@ -424,7 +424,7 @@ function Settings() {
                       <td>{new Date(bill.createdAt).toLocaleString()}</td>
                       <td>{bill.customerName}</td>
                       <td>{bill.itemCount}</td>
-                      <td>₹{bill.finalTotal}</td>
+                      <td>â‚¹{bill.finalTotal}</td>
                       <td>{bill.status}</td>
                       <td><button onClick={() => viewInvoice(bill.invoiceNumber)} className="action-btn">View Invoice</button></td>
                     </tr>
@@ -440,3 +440,5 @@ function Settings() {
 }
 
 export default Settings
+
+

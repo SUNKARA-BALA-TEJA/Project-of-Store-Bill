@@ -10,6 +10,40 @@ function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  const getLoginErrorMessage = (err) => {
+    // Axios has no response when the request never reached the server
+    // (backend down, DNS failure, or a CORS preflight rejection).
+    if (!err.response) {
+      return 'Unable to reach the FreshCart server. Please make sure the backend is running and that this site is allowed to connect to it.'
+    }
+
+    const data = err.response.data || {}
+    if (typeof data === 'string' && data.trim()) {
+      return data
+    }
+    if (data.error) {
+      return data.error
+    }
+
+    switch (err.response.status) {
+      case 400:
+        return 'Please check the username and password you entered.'
+      case 401:
+        return 'Invalid username or password.'
+      case 403:
+        return 'Your account is not allowed to sign in. Please contact the administrator.'
+      case 404:
+        return 'The login service could not be found. Please check the API configuration.'
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        return 'The server is temporarily unavailable. Please try again in a moment.'
+      default:
+        return 'Login failed. Please try again.'
+    }
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -19,12 +53,16 @@ function Login() {
     }
     try {
       const res = await api.post('/auth/login', { username, password })
+      if (!res.data?.token) {
+        setError('Login failed because the server did not return an authentication token.')
+        return
+      }
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('username', res.data.username)
       localStorage.setItem('role', res.data.role)
       navigate('/shop')
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid credentials')
+      setError(getLoginErrorMessage(err))
     }
   }
 
